@@ -35,18 +35,16 @@ def docs_info(user_id):
   data=db.child('users').child(user_id).get()
   files=dict(data.val())['docs']
   full_info={}
-  print(files)
+  files=[c for c in files if c != None]
   for file in files:
-    print(type(file))
-    print(file)
-    file_dict=list(dict(db.child('docs').get().val()).values())
+    file_dict=db.child('docs').get().val()
+    file_dict=[c for c in file_dict if c !=None]
     full_info[file]=file_dict[file-1]
-    print(full_info)
   return full_info
 
 
 def create():
-  filename=r'C:\Users\User\Downloads\vazno.docx'
+  filename=r'C:\Users\User\Downloads\10 (2).docx'
   sp = rf"\{''}"
   name = filename.split(sp)[-1]
   new=rf'{os.getcwd()}\{name}'
@@ -60,7 +58,7 @@ def create():
   data={'type': type,'sender': user_info['name'],'organisation': user_info['org'],'theme': theme,'time': '.'.join(str(datetime.datetime.now())[2::].split()[0].split('-')[::-1]), 'status': False, 'name':name}
   q=db.child('docs').get()
   mx=q.val()
-  print(mx)
+  mx=[c for c in mx if c != None]
   last=q.each()[-1].key()
   last_doc=db.child('docs').get().each()[-1].key()
   db.child('users').child(user_info['id']).child('docs').update({int(last)+1:len(mx)+1})
@@ -99,7 +97,6 @@ def send(id):
 
 
 if __name__=='__main__':
-  downloadd(1)
   signin('mrteh@gmail.com', '123456789')
   create()
 
