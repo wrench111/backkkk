@@ -35,20 +35,32 @@ def docs_info(user_id):
   data=db.child('users').child(user_id).get()
   files=dict(data.val())['docs']
   full_info={}
+  print(files)
   for file in files:
+    print(type(file))
+    print(file)
     file_dict=list(dict(db.child('docs').get().val()).values())
     full_info[file]=file_dict[file-1]
+    print(full_info)
   return full_info
 
 
 def create():
-  filename=input()
+  filename=r'C:\Users\User\Downloads\vazno.docx'
+  sp = rf"\{''}"
+  name = filename.split(sp)[-1]
+  new=rf'{os.getcwd()}\{name}'
+
+  os.rename(filename, new)
+
   type=input()
-  name=input()
-  storage.child(filename).put(filename)
-  data={'type': type,'sender': user_info['name'],'organisation': user_info['org'],'theme': name,'time': '.'.join(str(datetime.datetime.now())[2::].split()[0].split('-')[::-1]), 'status': False, 'name':filename}
+  theme=input()
+  storage.child(name).put(name)
+  os.remove(new)
+  data={'type': type,'sender': user_info['name'],'organisation': user_info['org'],'theme': theme,'time': '.'.join(str(datetime.datetime.now())[2::].split()[0].split('-')[::-1]), 'status': False, 'name':name}
   q=db.child('docs').get()
   mx=q.val()
+  print(mx)
   last=q.each()[-1].key()
   last_doc=db.child('docs').get().each()[-1].key()
   db.child('users').child(user_info['id']).child('docs').update({int(last)+1:len(mx)+1})
@@ -73,6 +85,7 @@ def downloadd(num):
       else:
         os.rename(rf"{cur_dir}\{doc_name}", rf"{dir}\{doc_name.split('.')[0]} ({k}).{doc_name.split('.')[1]}")
     except Exception as ex:
+      print(ex)
       if 'Не удается найти указанный файл' in str(ex):
         break
       print(ex)
@@ -86,10 +99,9 @@ def send(id):
 
 
 if __name__=='__main__':
-  # signin('mrteh@gmail.com', '123456789')
-  # create()
-  downloadd(3)
-
+  downloadd(1)
+  signin('mrteh@gmail.com', '123456789')
+  create()
 
 #Mfx8seI9LcUZ6eg55hST8kzPzeL2
 #C:\Users\mrteh\Downloads
