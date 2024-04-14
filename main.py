@@ -19,25 +19,26 @@ auth=firebase.auth()
 db=firebase.database()
 storage=firebase.storage()
 
-def signin(email, password):
+def signin(email, password, flag=True):
   global user_info
   try:
     user=auth.sign_in_with_email_and_password(email, password)
-  except:
+    user_info['id'] = user['localId']
+    user_page = dict(db.child('users').child(user['localId']).get().val())
+    user_info = dict(list(user_info.items()) + list(user_page.items()))
+    return docs_info(user['localId'])
+  except Exception as ex:
     print('Неыкрный логин или пароль')
-  user_info['id']=user['localId']
-  user_page=dict(db.child('users').child(user['localId']).get().val())
-  user_info=dict(list(user_info.items())+list(user_page.items()))
-  return docs_info(user['localId'])
+    print(ex)
 
 def docs_info(user_id):
   data=db.child('users').child(user_id).get()
   files=dict(data.val())['docs']
   full_info={}
   for file in files:
-    file_dict=db.child('docs').get().val()
-    file_dict=[i for i in file_dict if i != None][file-1]
-    full_info[file]=file_dict
+    file_dict=list(dict(db.child('docs').get().val()).values())
+    # file_dict=[i for i in file_dict if i != None]
+    full_info[file]=file_dict[file-1]
   return full_info
 
 
@@ -48,6 +49,7 @@ def create():
   storage.child(filename).put(filename)
   data={'type': type,'sender': user_info['name'],'organisation': user_info['org'],'theme': name,'time': '.'.join(str(datetime.datetime.now())[2::].split()[0].split('-')[::-1]), 'status': False, 'name':filename}
   mx=db.child('docs').get().val()
+  db.child('users').child(user_info['id']).child('docs').update({len(mx):len(mx)+1})
   db.child('docs').child(len(mx)+1).set(data)
 
 
@@ -76,7 +78,8 @@ def downloadd(num):
 
 
 if __name__=='__main__':
-  print(signin())
+  print(signin('mrteh@gmail.com', '123456789', flag=False))
+
 
 #Mfx8seI9LcUZ6eg55hST8kzPzeL2
 #C:\Users\mrteh\Downloads
