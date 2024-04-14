@@ -21,7 +21,10 @@ storage=firebase.storage()
 
 def signin(email, password):
   global user_info
-  user=auth.sign_in_with_email_and_password(email, password)
+  try:
+    user=auth.sign_in_with_email_and_password(email, password)
+  except:
+    print('Неыкрный логин или пароль')
   user_info['id']=user['localId']
   user_page=dict(db.child('users').child(user['localId']).get().val())
   user_info=dict(list(user_info.items())+list(user_page.items()))
