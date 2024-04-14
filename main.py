@@ -37,7 +37,6 @@ def docs_info(user_id):
   full_info={}
   for file in files:
     file_dict=list(dict(db.child('docs').get().val()).values())
-    # file_dict=[i for i in file_dict if i != None]
     full_info[file]=file_dict[file-1]
   return full_info
 
@@ -48,16 +47,18 @@ def create():
   name=input()
   storage.child(filename).put(filename)
   data={'type': type,'sender': user_info['name'],'organisation': user_info['org'],'theme': name,'time': '.'.join(str(datetime.datetime.now())[2::].split()[0].split('-')[::-1]), 'status': False, 'name':filename}
-  mx=db.child('docs').get().val()
-  db.child('users').child(user_info['id']).child('docs').update({len(mx):len(mx)+1})
-  db.child('docs').child(len(mx)+1).set(data)
+  q=db.child('docs').get()
+  mx=q.val()
+  last=q.each()[-1].key()
+  last_doc=db.child('docs').get().each()[-1].key()
+  db.child('users').child(user_info['id']).child('docs').update({int(last)+1:len(mx)+1})
+  db.child('docs').child(int(last_doc)+1).set(data)
 
 
 def downloadd(num):
   dir=r"C:\Users\User\Downloads"
-  docs=db.child('docs').get().val()
+  docs=list(db.child('docs').get().val().values())
   docs=[i for i in docs if i != None]
-  print(docs)
   doc_name=docs[num-1]['name']
   storage.child(doc_name).download('', doc_name)
   flag=True
@@ -75,10 +76,19 @@ def downloadd(num):
       if 'Не удается найти указанный файл' in str(ex):
         break
       print(ex)
+def send(id):
+  num=db.child('users').child('E258W587qleAw31PmNsT4bZZyJ73').child('docs').get().val()
+  num=[c for c in num if c !=None]
+  if id not in num:
+    db.child('users').child('E258W587qleAw31PmNsT4bZZyJ73').child('docs').update({len(num)+1:id})
+  else:
+    print('Этот файл уже есть у пользователя')
 
 
 if __name__=='__main__':
-  print(signin('mrteh@gmail.com', '123456789', flag=False))
+  # signin('mrteh@gmail.com', '123456789')
+  # create()
+  downloadd(3)
 
 
 #Mfx8seI9LcUZ6eg55hST8kzPzeL2
